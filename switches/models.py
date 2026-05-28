@@ -36,8 +36,8 @@ class SwitchPort(models.Model):
     switch = models.ForeignKey(Switch, on_delete=models.CASCADE, related_name='ports')
     interface = models.CharField(max_length=50)                 # ge-0/0/0.0
     port_mode = models.CharField(max_length=20, blank=True)     # trunk/access
-    area_number = models.CharField(max_length=20, blank=True)   # 아웃렛
-    port_number = models.CharField(max_length=20, blank=True)
+    area_number = models.CharField(max_length=100, blank=True)  # 아웃렛 (IP+포트 설명 포함 가능)
+    port_number = models.CharField(max_length=50, blank=True)
 
     class Meta:
         unique_together = ('switch', 'interface')
