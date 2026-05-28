@@ -1,47 +1,42 @@
-import ipaddress
 from django import forms
-from .models import IpAddress, IpGroup, Person
+from .models import IpAddress, Person
 
 
-class IpAddressForm(forms.ModelForm):
+class IpEditForm(forms.ModelForm):
+    """IP 수정 전용 폼 — IP 주소·그룹은 읽기 전용, 사용자는 AJAX 검색으로 선택"""
+
+    # AJAX로 선택된 person pk를 받는 숨김 필드
+    person_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+
     class Meta:
         model = IpAddress
-        fields = ['ip', 'group', 'person', 'note', 'start_date', 'end_date']
+        fields = ['note', 'start_date', 'end_date']
         widgets = {
-            'ip': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '예: 192.168.1.100'}),
-            'group': forms.Select(attrs={'class': 'form-control'}),
-            'person': forms.Select(attrs={'class': 'form-control'}),
             'note': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'start_date': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'YYYY-MM-DD'}),
             'end_date': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'YYYY-MM-DD'}),
         }
         labels = {
-            'ip': 'IP 주소',
-            'group': 'IP 그룹',
-            'person': '사용자',
             'note': '메모',
             'start_date': '사용 시작일',
             'end_date': '사용 종료일',
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['group'].required = False
-        self.fields['group'].empty_label = '-- 그룹 선택 --'
-        self.fields['person'].required = False
-        self.fields['person'].empty_label = '-- 미사용 --'
-        self.fields['person'].queryset = Person.objects.filter(use_yn='Y').order_by('name')
+    def clean(self):
+        cleaned = super().clean()
+        pid = cleaned.get('person_id')
+        if pid:
+            try:
+                cleaned['_person'] = Person.objects.get(pk=pid)
+            except Person.DoesNotExist:
+                self.add_error('person_id', '존재하지 않는 사용자입니다.')
+        else:
+            cleaned['_person'] = None
+        return cleaned
 
-    def clean_ip(self):
-        ip = self.cleaned_data.get('ip', '').strip()
-        try:
-            ipaddress.ip_address(ip)
-        except ValueError:
-            raise forms.ValidationError('유효한 IP 주소를 입력해주세요.')
-        # 수정 시 자기 자신 제외, 등록 시 중복 체크
-        qs = IpAddress.objects.filter(ip=ip)
-        if self.instance.pk:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise forms.ValidationError('이미 등록된 IP 주소입니다.')
-        return ip
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        obj.person = self.cleaned_data.get('_person')
+        if commit:
+            obj.save()
+        return obj

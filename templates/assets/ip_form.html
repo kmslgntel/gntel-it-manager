@@ -1,72 +1,150 @@
 {% extends "base.html" %}
 
-{% block title %}IP {{ action }} — GNTEL IT 통합 관리 시스템{% endblock %}
+{% block title %}IP 수정 — GNTEL IT 통합 관리 시스템{% endblock %}
+
+{% block extra_css %}
+<style>
+.person-search-wrap { position: relative; }
+.person-results {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  max-height: 260px;
+  overflow-y: auto;
+  z-index: 200;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  display: none;
+}
+.person-results.open { display: block; }
+.person-result-item {
+  padding: 9px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border);
+}
+.person-result-item:last-child { border-bottom: none; }
+.person-result-item:hover { background: var(--color-primary-light); color: var(--color-primary); }
+.person-result-item .name { font-weight: 700; }
+.person-result-item .detail { font-size: 12px; color: var(--color-text-secondary); margin-top: 1px; }
+.person-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--color-primary-light);
+  border: 1px solid #BBD7F7;
+  border-radius: var(--border-radius-sm);
+  font-size: 13px;
+  margin-top: 6px;
+}
+.person-selected .clear-btn {
+  background: none;
+  border: none;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 0 4px;
+}
+.readonly-field {
+  display: block;
+  width: 100%;
+  padding: 7px 11px;
+  font-size: 14px;
+  background: var(--color-table-header);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+}
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <div>
-    <h1 class="page-title">IP {{ action }}</h1>
-    {% if obj %}<p class="page-subtitle">{{ obj.ip }}</p>{% endif %}
+    <h1 class="page-title">IP 수정</h1>
+    <p class="page-subtitle">{{ obj.ip }}</p>
   </div>
 </div>
 
 <div class="form-card">
-  <form method="post">
+  <form method="post" id="ip-edit-form">
     {% csrf_token %}
+    {{ form.person_id }}
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px;">
 
+      <!-- IP 주소 (읽기 전용) -->
       <div class="form-group">
-        <label class="form-label" for="{{ form.ip.id_for_label }}">
-          IP 주소 <span class="required">*</span>
-        </label>
-        {{ form.ip }}
-        {% if form.ip.errors %}
-          <div class="form-error">{{ form.ip.errors.0 }}</div>
-        {% endif %}
+        <label class="form-label">IP 주소 <span style="font-size:11px; color:var(--color-text-muted); font-weight:400;">(변경 불가)</span></label>
+        <span class="readonly-field">{{ obj.ip }}</span>
       </div>
 
+      <!-- IP 그룹 (읽기 전용) -->
       <div class="form-group">
-        <label class="form-label" for="{{ form.group.id_for_label }}">IP 그룹</label>
-        {{ form.group }}
-        {% if form.group.errors %}
-          <div class="form-error">{{ form.group.errors.0 }}</div>
-        {% endif %}
+        <label class="form-label">IP 그룹 <span style="font-size:11px; color:var(--color-text-muted); font-weight:400;">(변경 불가)</span></label>
+        <span class="readonly-field">
+          {% if obj.group %}
+            {% if obj.group.parent_name %}{{ obj.group.parent_name }} / {% endif %}{{ obj.group.name }}
+          {% else %}미지정{% endif %}
+        </span>
       </div>
 
-      <div class="form-group">
-        <label class="form-label" for="{{ form.person.id_for_label }}">사용자</label>
-        {{ form.person }}
-        <div class="form-help">미사용으로 설정하려면 비워두세요.</div>
-        {% if form.person.errors %}
-          <div class="form-error">{{ form.person.errors.0 }}</div>
-        {% endif %}
-      </div>
-
+      <!-- 사용 시작일 -->
       <div class="form-group">
         <label class="form-label" for="{{ form.start_date.id_for_label }}">사용 시작일</label>
         {{ form.start_date }}
-        {% if form.start_date.errors %}
-          <div class="form-error">{{ form.start_date.errors.0 }}</div>
-        {% endif %}
+        {% if form.start_date.errors %}<div class="form-error">{{ form.start_date.errors.0 }}</div>{% endif %}
       </div>
 
+      <!-- 사용 종료일 -->
       <div class="form-group">
         <label class="form-label" for="{{ form.end_date.id_for_label }}">사용 종료일</label>
         {{ form.end_date }}
-        {% if form.end_date.errors %}
-          <div class="form-error">{{ form.end_date.errors.0 }}</div>
-        {% endif %}
+        {% if form.end_date.errors %}<div class="form-error">{{ form.end_date.errors.0 }}</div>{% endif %}
       </div>
 
     </div>
 
+    <!-- 사용자 검색 -->
+    <div class="form-group">
+      <label class="form-label">사용자</label>
+      <div class="person-search-wrap">
+        <input type="text" id="person-search-input" class="form-control"
+               placeholder="이름 또는 ID로 검색..."
+               autocomplete="off">
+        <div class="person-results" id="person-results"></div>
+      </div>
+
+      <!-- 현재 선택된 사용자 표시 -->
+      <div id="person-selected-wrap" style="{% if not obj.person %}display:none;{% endif %}">
+        <div class="person-selected" id="person-selected-display">
+          <div>
+            <span class="name" id="selected-name">{{ obj.person.name|default:"" }}</span>
+            <span id="selected-detail" style="font-size:12px; color:var(--color-text-secondary); margin-left:8px;">
+              {% if obj.person %}
+                {{ obj.person.department.name|default:"" }}
+                {% if obj.person.company %} · {{ obj.person.company.name }}{% endif %}
+              {% endif %}
+            </span>
+          </div>
+          <button type="button" class="clear-btn" onclick="clearPerson()" title="사용자 해제">x</button>
+        </div>
+      </div>
+      <div class="form-help">비워두면 미사용 상태로 변경됩니다.</div>
+      {% if form.person_id.errors %}<div class="form-error">{{ form.person_id.errors.0 }}</div>{% endif %}
+    </div>
+
+    <!-- 메모 -->
     <div class="form-group">
       <label class="form-label" for="{{ form.note.id_for_label }}">메모</label>
       {{ form.note }}
-      {% if form.note.errors %}
-        <div class="form-error">{{ form.note.errors.0 }}</div>
-      {% endif %}
+      {% if form.note.errors %}<div class="form-error">{{ form.note.errors.0 }}</div>{% endif %}
     </div>
 
     {% if form.non_field_errors %}
@@ -74,14 +152,98 @@
     {% endif %}
 
     <div class="form-actions">
-      <button type="submit" class="btn btn-primary">{{ action }}</button>
-      {% if obj %}
-        <a href="{% url 'assets:ip_detail' obj.pk %}" class="btn btn-secondary">취소</a>
-      {% else %}
-        <a href="{% url 'assets:ip_list' %}" class="btn btn-secondary">취소</a>
-      {% endif %}
+      <button type="submit" class="btn btn-primary">저장</button>
+      <a href="{% url 'assets:ip_detail' obj.pk %}" class="btn btn-secondary">취소</a>
     </div>
   </form>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const searchInput = document.getElementById('person-search-input');
+  const resultsBox  = document.getElementById('person-results');
+  const personIdInput = document.getElementById('{{ form.person_id.id_for_label }}');
+  const selectedWrap = document.getElementById('person-selected-wrap');
+  const selectedName = document.getElementById('selected-name');
+  const selectedDetail = document.getElementById('selected-detail');
+
+  // 초기값 설정
+  const initialPersonId = '{{ obj.person.pk|default:"" }}';
+  if (initialPersonId) {
+    personIdInput.value = initialPersonId;
+  }
+
+  let debounceTimer;
+  const SEARCH_URL = '{% url "assets:ip_person_search" %}';
+
+  searchInput.addEventListener('input', function () {
+    clearTimeout(debounceTimer);
+    const q = this.value.trim();
+    if (q.length < 1) {
+      closeResults();
+      return;
+    }
+    debounceTimer = setTimeout(() => fetchResults(q), 250);
+  });
+
+  searchInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeResults();
+  });
+
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.person-search-wrap')) closeResults();
+  });
+
+  function fetchResults(q) {
+    fetch(`${SEARCH_URL}?q=${encodeURIComponent(q)}`)
+      .then(r => r.json())
+      .then(data => renderResults(data.results));
+  }
+
+  function renderResults(results) {
+    resultsBox.innerHTML = '';
+    if (!results.length) {
+      resultsBox.innerHTML = '<div class="person-result-item" style="color:var(--color-text-muted);">검색 결과 없음</div>';
+    } else {
+      results.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'person-result-item';
+        const parts = p.text.split(' (');
+        const name  = parts[0];
+        const detail = parts.slice(1).join(' (').replace(/\)$/, '');
+        div.innerHTML = `<div class="name">${name}${p.use_yn !== 'Y' ? ' <span style="color:var(--color-danger);font-size:11px;">[퇴사]</span>' : ''}</div>${detail ? `<div class="detail">${detail}</div>` : ''}`;
+        div.addEventListener('click', () => selectPerson(p));
+        resultsBox.appendChild(div);
+      });
+    }
+    resultsBox.classList.add('open');
+  }
+
+  function selectPerson(p) {
+    personIdInput.value = p.id;
+    // name / detail 분리
+    const parts = p.text.split(' (');
+    selectedName.textContent = parts[0];
+    selectedDetail.textContent = parts.slice(1).join(' (').replace(/\)$/, '');
+    selectedWrap.style.display = '';
+    searchInput.value = '';
+    closeResults();
+  }
+
+  window.clearPerson = function () {
+    personIdInput.value = '';
+    selectedWrap.style.display = 'none';
+    selectedName.textContent = '';
+    selectedDetail.textContent = '';
+  };
+
+  function closeResults() {
+    resultsBox.classList.remove('open');
+    resultsBox.innerHTML = '';
+  }
+})();
+</script>
 {% endblock %}
