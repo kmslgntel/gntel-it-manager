@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}IP {{ action }} — GNTEL IT 통합 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">IP {{ action }}</h1>
+    {% if obj %}<p class="page-subtitle">{{ obj.ip }}</p>{% endif %}
+  </div>
+</div>
+
+<div class="form-card">
+  <form method="post">
+    {% csrf_token %}
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px;">
+
+      <div class="form-group">
+        <label class="form-label" for="{{ form.ip.id_for_label }}">
+          IP 주소 <span class="required">*</span>
+        </label>
+        {{ form.ip }}
+        {% if form.ip.errors %}
+          <div class="form-error">{{ form.ip.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="{{ form.group.id_for_label }}">IP 그룹</label>
+        {{ form.group }}
+        {% if form.group.errors %}
+          <div class="form-error">{{ form.group.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="{{ form.person.id_for_label }}">사용자</label>
+        {{ form.person }}
+        <div class="form-help">미사용으로 설정하려면 비워두세요.</div>
+        {% if form.person.errors %}
+          <div class="form-error">{{ form.person.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="{{ form.start_date.id_for_label }}">사용 시작일</label>
+        {{ form.start_date }}
+        {% if form.start_date.errors %}
+          <div class="form-error">{{ form.start_date.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="{{ form.end_date.id_for_label }}">사용 종료일</label>
+        {{ form.end_date }}
+        {% if form.end_date.errors %}
+          <div class="form-error">{{ form.end_date.errors.0 }}</div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="{{ form.note.id_for_label }}">메모</label>
+      {{ form.note }}
+      {% if form.note.errors %}
+        <div class="form-error">{{ form.note.errors.0 }}</div>
+      {% endif %}
+    </div>
+
+    {% if form.non_field_errors %}
+    <div class="alert alert-error">{{ form.non_field_errors }}</div>
+    {% endif %}
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">{{ action }}</button>
+      {% if obj %}
+        <a href="{% url 'assets:ip_detail' obj.pk %}" class="btn btn-secondary">취소</a>
+      {% else %}
+        <a href="{% url 'assets:ip_list' %}" class="btn btn-secondary">취소</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+{% endblock %}

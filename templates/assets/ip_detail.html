@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}IP {{ obj.ip }} 상세 — GNTEL IT 통합 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ obj.ip }}</h1>
+    <p class="page-subtitle">
+      {% if obj.person %}
+        <span class="badge badge-primary">사용 중</span>
+      {% else %}
+        <span class="badge badge-secondary">미사용</span>
+      {% endif %}
+    </p>
+  </div>
+  <div style="display:flex; gap:8px; align-items:flex-start; margin-top:4px;" class="toolbar-right">
+    <a href="{% url 'assets:ip_update' obj.pk %}" class="btn btn-primary">수정</a>
+    <a href="{% url 'assets:ip_delete' obj.pk %}" class="btn btn-danger"
+       data-confirm="{{ obj.ip }} IP를 삭제하시겠습니까?">삭제</a>
+    <a href="{% url 'assets:ip_list' %}" class="btn btn-secondary">목록으로</a>
+  </div>
+</div>
+
+<div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+
+  <!-- IP 정보 -->
+  <div class="panel">
+    <div class="panel-header"><div class="panel-title">IP 정보</div></div>
+    <div class="panel-body">
+      <table class="table" style="font-size:14px;">
+        <tbody>
+          <tr>
+            <td style="width:120px; color:var(--color-text-secondary); font-weight:600;">IP 주소</td>
+            <td class="technical">{{ obj.ip }}</td>
+          </tr>
+          <tr>
+            <td style="color:var(--color-text-secondary); font-weight:600;">IP 그룹</td>
+            <td>
+              {% if obj.group %}
+                {% if obj.group.parent_name %}{{ obj.group.parent_name }} / {% endif %}{{ obj.group.name }}
+              {% else %}-{% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td style="color:var(--color-text-secondary); font-weight:600;">사용 시작일</td>
+            <td>{{ obj.start_date|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td style="color:var(--color-text-secondary); font-weight:600;">사용 종료일</td>
+            <td>{{ obj.end_date|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td style="color:var(--color-text-secondary); font-weight:600;">메모</td>
+            <td>{{ obj.note|default:"-" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 사용자 정보 -->
+  <div class="panel">
+    <div class="panel-header"><div class="panel-title">사용자 정보</div></div>
+    <div class="panel-body">
+      {% if obj.person %}
+      <table class="table" style="font-size:14px;">
+        <tbody>
+          <tr>
+            <td style="width:120px; color:var(--color-text-secondary); font-weight:600;">이름</td>
+            <td>{{ obj.person.name }}</td>
+          </tr>
+          <tr>
+            <td style="color:var(--color-text-secondary); font-weight:600;">구분</td>
+            <td>{{ obj.person.get_person_type_display }}</td>
+          </tr>
+          <tr>
+            <td style="color:var(--color-text-secondary); font-weight:600;">부서</td>
+            <td>{{ obj.person.department.name|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td style="color:var(--color-text-secondary); font-weight:600;">회사</td>
+            <td>{{ obj.person.company.name|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td style="color:var(--color-text-secondary); font-weight:600;">이메일</td>
+            <td>{{ obj.person.email|default:"-" }}</td>
+          </tr>
+          <tr>
+            <td style="color:var(--color-text-secondary); font-weight:600;">내선</td>
+            <td>{{ obj.person.tel|default:"-" }}</td>
+          </tr>
+        </tbody>
+      </table>
+      {% else %}
+      <p class="text-muted" style="padding:12px 0;">할당된 사용자 없음</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- 변경 로그 -->
+<div class="panel">
+  <div class="panel-header">
+    <div>
+      <div class="panel-title">변경 로그</div>
+      <div class="panel-meta">이 IP에 대한 최근 변경 이력 (최대 20건)</div>
+    </div>
+  </div>
+  <div class="table-wrapper" style="border:0; border-radius:0;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th style="width:170px;">일시</th>
+          <th>작업자</th>
+          <th>동작</th>
+          <th>상세</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td style="white-space:nowrap;">{{ log.acted_at|date:"Y-m-d H:i:s" }}</td>
+          <td>{{ log.actor }}</td>
+          <td><span class="badge badge-secondary">{{ log.action }}</span></td>
+          <td>{{ log.detail|default:"-" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="table-empty">변경 로그가 없습니다.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

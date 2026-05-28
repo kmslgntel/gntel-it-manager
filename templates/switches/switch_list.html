@@ -2,10 +2,52 @@
 {% block title %}스위치 관리 — GNTEL IT 통합 관리 시스템{% endblock %}
 {% block content %}
 <div class="page-header">
-  <h1 class="page-title">스위치 관리</h1>
-  <p class="page-subtitle">구현 예정 (작업순서 11)</p>
+  <div>
+    <h1 class="page-title">스위치 관리</h1>
+    <p class="page-subtitle">스위치 장비, 포트, 상태 조회, 명령 실행을 관리하는 화면입니다.</p>
+  </div>
+  <div class="page-actions">
+    <button type="button" class="btn btn-secondary" disabled>검색/필터 준비중</button>
+    <button type="button" class="btn btn-primary" disabled>신규 등록 준비중</button>
+  </div>
 </div>
-<div class="card">
-  <p class="text-muted">스위치 관리 기능은 작업순서 11에서 구현됩니다.</p>
+
+<div class="stat-grid">
+  <div class="stat-card">
+    <div class="stat-card-header"><span class="stat-label">등록 장비</span><span class="stat-icon">•</span></div>
+    <div><div class="stat-value-row"><span class="stat-value text-muted">-</span></div><div class="stat-sub">스위치 마스터</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-header"><span class="stat-label">상태 조회</span><span class="stat-icon">•</span></div>
+    <div><div class="stat-value-row"><span class="stat-value text-muted">-</span></div><div class="stat-sub">show 명령 우선</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-header"><span class="stat-label">포트 관리</span><span class="stat-icon">•</span></div>
+    <div><div class="stat-value-row"><span class="stat-value text-muted">-</span></div><div class="stat-sub">포트별 사용 현황</div></div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-card-header"><span class="stat-label">위험 명령</span><span class="stat-icon">•</span></div>
+    <div><div class="stat-value-row"><span class="stat-value text-muted">-</span></div><div class="stat-sub">차단/재확인</div></div>
+  </div>
 </div>
+
+<section class="panel">
+  <div class="panel-header">
+    <div>
+      <div class="panel-title">스위치 관리 목록</div>
+      <div class="panel-meta">기능 구현 전 UI 골격입니다. 실제 데이터 연동 시 같은 구조를 유지합니다.</div>
+    </div>
+    <span class="badge badge-secondary">구현 예정</span>
+  </div>
+  <div class="table-wrapper" style="border:0; border-radius:0;">
+    <table class="table">
+      <thead>
+        <tr><th>장비명</th><th>관리 IP</th><th>위치</th><th>상태</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Switch-Name</td><td>0.0.0.0</td><td>-</td><td><span class="badge badge-secondary">구현 예정</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 {% endblock %}

@@ -18,8 +18,12 @@ def dashboard(request):
     ip_total = IpAddress.objects.count()
     ip_used = IpAddress.objects.filter(person__isnull=False).count()
     ip_free = ip_total - ip_used
+    ip_usage_percent = round((ip_used / ip_total) * 100, 1) if ip_total else 0
+
     phone_total = Phone.objects.count()
     phone_used = Phone.objects.filter(person__isnull=False).count()
+    phone_free = phone_total - phone_used
+
     switch_total = SwitchModel.objects.count()
 
     try:
@@ -36,14 +40,17 @@ def dashboard(request):
         'ip_total': ip_total,
         'ip_used': ip_used,
         'ip_free': ip_free,
+        'ip_usage_percent': ip_usage_percent,
         'phone_total': phone_total,
         'phone_used': phone_used,
+        'phone_free': phone_free,
         'switch_total': switch_total,
         'this_inspection': this_inspection,
         'inspection_detail_count': inspection_detail_count,
         'this_ym': this_ym,
         'recent_account_works': recent_account_works,
         'recent_logs': recent_logs,
+        'recent_log_count': len(recent_logs),
     })
 
 
