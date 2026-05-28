@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}GNTEL IT 통합 관리 시스템{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/table.css' %}">
+  <link rel="stylesheet" href="{% static 'css/form.css' %}">
+  <link rel="stylesheet" href="{% static 'css/button.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="header-left">
+    <a href="/">
+      <img src="{% static 'images/GNTEL_logo.png' %}" alt="GNTEL" class="header-logo">
+    </a>
+    <span class="header-system-name">IT 통합 관리 시스템</span>
+  </div>
+  <div class="header-right">
+    {% if user.is_authenticated %}
+      <span class="header-username">
+        <strong>{{ user.get_full_name|default:user.username }}</strong>님
+      </span>
+      <form method="post" action="{% url 'logout' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary btn-sm">로그아웃</button>
+      </form>
+    {% endif %}
+  </div>
+</header>
+
+<!-- Body -->
+<div class="body-wrapper">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-nav">
+
+      <a href="{% url 'dashboard' %}" class="sidebar-item">
+        <span class="nav-icon">&#9632;</span> Dashboard
+      </a>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label">자산 관리</div>
+
+      <a href="{% url 'assets:ip_list' %}" class="sidebar-item">
+        <span class="nav-icon">&#9632;</span> IP 관리
+      </a>
+      <a href="{% url 'assets:phone_list' %}" class="sidebar-item">
+        <span class="nav-icon">&#9632;</span> 전화번호 관리
+      </a>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label">스위치</div>
+
+      <a href="{% url 'switches:switch_list' %}" class="sidebar-item">
+        <span class="nav-icon">&#9632;</span> 스위치 관리
+      </a>
+      <a href="{% url 'switches:backup_list' %}" class="sidebar-item">
+        <span class="nav-icon">&#9632;</span> 스위치 백업
+      </a>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label">점검 / 작업</div>
+
+      <a href="{% url 'inspection:list' %}" class="sidebar-item">
+        <span class="nav-icon">&#9632;</span> 정기점검
+      </a>
+      <a href="{% url 'accounts_work:list' %}" class="sidebar-item">
+        <span class="nav-icon">&#9632;</span> 계정 작업
+      </a>
+
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label">시스템</div>
+
+      <a href="{% url 'core:auditlog_list' %}" class="sidebar-item">
+        <span class="nav-icon">&#9632;</span> 변경 로그
+      </a>
+      {% if user.is_staff %}
+      <a href="{% url 'admin:index' %}" class="sidebar-item">
+        <span class="nav-icon">&#9632;</span> 관리자 메뉴
+      </a>
+      {% endif %}
+
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+
+    {% if messages %}
+    <div class="messages">
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+  </main>
+</div>
+
+<script src="{% static 'js/common.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}변경 로그 — GNTEL IT 통합 관리 시스템{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1 class="page-title">변경 로그</h1>
+</div>
+
+<!-- 검색/필터 -->
+<form method="get" class="search-form mb-16">
+  <input type="text" name="actor" class="form-control" placeholder="작업자" value="{{ actor }}">
+  <select name="action" class="form-control" style="width:auto; min-width:120px;">
+    <option value="">동작 전체</option>
+    {% for ac in action_choices %}
+    <option value="{{ ac }}" {% if action == ac %}selected{% endif %}>{{ ac }}</option>
+    {% endfor %}
+  </select>
+  <input type="text" name="target_type" class="form-control" placeholder="대상 유형" value="{{ target_type }}">
+  <button type="submit" class="btn btn-primary">검색</button>
+  <a href="{% url 'core:auditlog_list' %}" class="btn btn-secondary">초기화</a>
+</form>
+
+<div class="table-wrapper">
+  <table class="table">
+    <thead>
+      <tr>
+        <th style="width:160px;">일시</th>
+        <th>작업자</th>
+        <th>동작</th>
+        <th>대상 유형</th>
+        <th>대상 ID</th>
+        <th>상세</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for log in page_obj %}
+      <tr>
+        <td style="white-space:nowrap;">{{ log.acted_at|date:"Y-m-d H:i:s" }}</td>
+        <td>{{ log.actor }}</td>
+        <td><span class="badge badge-secondary">{{ log.action }}</span></td>
+        <td>{{ log.target_type }}</td>
+        <td>{{ log.target_id|default:"-" }}</td>
+        <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"
+            title="{{ log.detail }}">{{ log.detail|truncatechars:80 }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="table-empty">로그가 없습니다.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- 페이지네이션 -->
+{% if page_obj.has_other_pages %}
+<div class="pagination">
+  {% if page_obj.has_previous %}
+    <a href="?page=1&actor={{ actor }}&action={{ action }}&target_type={{ target_type }}">&laquo;</a>
+    <a href="?page={{ page_obj.previous_page_number }}&actor={{ actor }}&action={{ action }}&target_type={{ target_type }}">&lsaquo;</a>
+  {% else %}
+    <span class="disabled">&laquo;</span>
+    <span class="disabled">&lsaquo;</span>
+  {% endif %}
+
+  <span class="current">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+
+  {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}&actor={{ actor }}&action={{ action }}&target_type={{ target_type }}">&rsaquo;</a>
+    <a href="?page={{ page_obj.paginator.num_pages }}&actor={{ actor }}&action={{ action }}&target_type={{ target_type }}">&raquo;</a>
+  {% else %}
+    <span class="disabled">&rsaquo;</span>
+    <span class="disabled">&raquo;</span>
+  {% endif %}
+</div>
+<p class="pagination-info">총 {{ page_obj.paginator.count }}건</p>
+{% endif %}
+
+{% endblock %}

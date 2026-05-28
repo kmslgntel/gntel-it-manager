@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인 — GNTEL IT 통합 관리 시스템</title>
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+  <link rel="stylesheet" href="{% static 'css/form.css' %}">
+  <link rel="stylesheet" href="{% static 'css/button.css' %}">
+</head>
+<body>
+
+<div class="login-page">
+  <div class="login-box">
+
+    <div class="login-logo-wrap">
+      <img src="{% static 'images/GNTEL_logo.png' %}" alt="GNTEL" class="login-logo">
+    </div>
+
+    <p class="login-title">사내 IT 통합 관리 시스템</p>
+
+    {% if form.errors %}
+    <div class="alert alert-error" style="margin-bottom:16px;">
+      아이디 또는 비밀번호가 올바르지 않습니다.
+    </div>
+    {% endif %}
+
+    {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}" style="margin-bottom:16px;">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+
+      <div class="form-group">
+        <label class="form-label" for="id_username">아이디</label>
+        <input
+          type="text"
+          id="id_username"
+          name="username"
+          class="form-control {% if form.username.errors %}error{% endif %}"
+          autocomplete="username"
+          autofocus
+          required
+          value="{{ form.username.value|default:'' }}"
+        >
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="id_password">비밀번호</label>
+        <input
+          type="password"
+          id="id_password"
+          name="password"
+          class="form-control"
+          autocomplete="current-password"
+          required
+        >
+      </div>
+
+      <div style="margin-top:24px;">
+        <button type="submit" class="btn btn-primary btn-block">로그인</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+</body>
+</html>
