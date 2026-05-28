@@ -1,0 +1,10 @@
+Django>=5.0
+PyMySQL
+python-dotenv
+openpyxl
+netmiko
+paramiko
+pyodbc
+pymysql
+cryptography
+gunicorn

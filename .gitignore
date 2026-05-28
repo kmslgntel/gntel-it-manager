@@ -1,0 +1,51 @@
+# 환경변수 (절대 커밋 금지)
+.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.so
+
+# 가상환경
+.venv/
+venv/
+env/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+staticfiles/
+media/
+
+# 스위치 암호화 자격증명 (script/json/)
+script/json/encryption_key.key
+script/json/credentials.json
+
+# SQL 백업 파일 (용량 크고 민감 데이터 포함)
+*.sql
+
+# Excel 원본 양식 (바이너리, 별도 관리)
+*.xlsx
+*.xls
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 빌드
+dist/
+build/
+*.egg-info/

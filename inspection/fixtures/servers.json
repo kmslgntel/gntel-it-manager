@@ -1,0 +1,11 @@
+[
+  {"model": "inspection.server", "pk": 1, "fields": {"name": "그룹웨어", "excel_label": "그룹웨어", "hostname": "", "registered_ip": "", "os": "Windows Server", "collect_method": "db-view", "is_active": true, "sort_order": 1}},
+  {"model": "inspection.server", "pk": 2, "fields": {"name": "ERP", "excel_label": "ERP", "hostname": "", "registered_ip": "", "os": "Windows Server", "collect_method": "manual", "is_active": true, "sort_order": 2}},
+  {"model": "inspection.server", "pk": 3, "fields": {"name": "파일서버", "excel_label": "파일서버", "hostname": "", "registered_ip": "", "os": "Synology DSM", "collect_method": "ssh", "is_active": true, "sort_order": 3}},
+  {"model": "inspection.server", "pk": 4, "fields": {"name": "방화벽(VPN)", "excel_label": "방화벽(VPN)", "hostname": "", "registered_ip": "", "os": "TrusGuard", "collect_method": "manual", "is_active": true, "sort_order": 4}},
+  {"model": "inspection.server", "pk": 5, "fields": {"name": "SPAMOUT", "excel_label": "SPAMOUT", "hostname": "", "registered_ip": "", "os": "", "collect_method": "manual", "is_active": true, "sort_order": 5}},
+  {"model": "inspection.server", "pk": 6, "fields": {"name": "DNS, Homepage", "excel_label": "DNS, Homepage", "hostname": "", "registered_ip": "", "os": "Windows Server", "collect_method": "manual", "is_active": true, "sort_order": 6}},
+  {"model": "inspection.server", "pk": 7, "fields": {"name": "백업서버", "excel_label": "백업서버", "hostname": "", "registered_ip": "", "os": "Windows Server", "collect_method": "manual", "is_active": true, "sort_order": 7}},
+  {"model": "inspection.server", "pk": 8, "fields": {"name": "ICARUS", "excel_label": "ICARUS", "hostname": "", "registered_ip": "", "os": "Windows Server", "collect_method": "manual", "is_active": true, "sort_order": 8}},
+  {"model": "inspection.server", "pk": 9, "fields": {"name": "HCI", "excel_label": "HCI", "hostname": "", "registered_ip": "", "os": "", "collect_method": "manual", "is_active": true, "sort_order": 9}}
+]
